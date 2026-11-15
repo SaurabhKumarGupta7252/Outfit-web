@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Outfit Admin Panel</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f1117; color: #e0e0e0; }
+
+    /* Login */
+    .login-container { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .login-box { background: #1a1d27; border-radius: 12px; padding: 40px; width: 380px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+    .login-box h1 { font-size: 22px; margin-bottom: 24px; color: #fff; text-align: center; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; color: #999; margin-bottom: 6px; }
+    .form-group input, .form-group select { width: 100%; padding: 10px 14px; background: #2a2d3b; border: 1px solid #3a3d4b; border-radius: 8px; color: #fff; font-size: 14px; outline: none; }
+    .form-group input:focus, .form-group select:focus { border-color: #6c63ff; }
+    .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s; }
+    .btn-primary { background: #6c63ff; color: #fff; }
+    .btn-primary:hover { background: #5b52e0; }
+    .btn-secondary { background: #2a2d3b; color: #e0e0e0; }
+    .btn-secondary:hover { background: #3a3d4b; }
+    .btn-danger { background: #e53e3e; color: #fff; }
+    .btn-danger:hover { background: #c53030; }
+    .btn-success { background: #38a169; color: #fff; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .error-msg { color: #ff6b6b; font-size: 13px; margin-top: 8px; }
+
+    /* Layout */
+    .app { display: none; }
+    .header { background: #1a1d27; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #2a2d3b; }
+    .header h1 { font-size: 18px; color: #fff; }
+    .header .user-info { display: flex; align-items: center; gap: 12px; }
+    .header .user-email { color: #999; font-size: 13px; }
+    .main { display: flex; min-height: calc(100vh - 57px); }
+
+    /* Sidebar */
+    .sidebar { width: 280px; background: #1a1d27; border-right: 1px solid #2a2d3b; padding: 16px; overflow-y: auto; }
+    .sidebar h3 { font-size: 12px; text-transform: uppercase; color: #666; letter-spacing: 1px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-item { padding: 10px 14px; border-radius: 8px; cursor: pointer; font-size: 14px; margin-bottom: 4px; transition: background 0.2s; }
+    .nav-item:hover { background: #2a2d3b; }
+    .nav-item.active { background: #6c63ff22; color: #6c63ff; }
+    .category-group { margin-bottom: 8px; }
+    .category-group-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; }
+    .category-group-name { font-weight: 600; font-size: 13px; color: #aaa; cursor: pointer; display: flex; align-items: center; gap: 6px; flex: 1; }
+    .category-group-name:hover { color: #fff; }
+    .category-group-name .arrow { font-size: 10px; transition: transform 0.2s; }
+    .category-group-name .arrow.open { transform: rotate(90deg); }
+    .cat-actions { display: flex; gap: 4px; }
+    .cat-actions button { background: none; border: none; color: #666; cursor: pointer; font-size: 12px; padding: 2px 4px; border-radius: 4px; }
+    .cat-actions button:hover { color: #fff; background: #2a2d3b; }
+    .category-children { padding-left: 16px; display: none; }
+    .category-children.open { display: block; }
+    .sub-item { padding: 6px 14px; font-size: 13px; cursor: pointer; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+    .sub-item:hover { background: #2a2d3b; }
+    .sub-item.active { background: #6c63ff22; color: #6c63ff; }
+    .badge { background: #2a2d3b; color: #999; font-size: 11px; padding: 2px 8px; border-radius: 10px; }
+
+    /* Content */
+    .content { flex: 1; padding: 24px; overflow-y: auto; }
+    .content h2 { font-size: 20px; margin-bottom: 16px; color: #fff; }
+    .content-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .content-header h2 { margin-bottom: 0; }
+    .content-actions { display: flex; gap: 8px; }
+
+    /* Upload area */
+    .upload-area { border: 2px dashed #3a3d4b; border-radius: 12px; padding: 40px; text-align: center; margin-bottom: 24px; transition: all 0.2s; cursor: pointer; }
+    .upload-area:hover, .upload-area.dragover { border-color: #6c63ff; background: #6c63ff11; }
+    .upload-area p { color: #999; margin-bottom: 12px; }
+    .upload-area .hint { font-size: 12px; color: #666; }
+
+    /* Progress */
+    .progress-bar { width: 100%; height: 8px; background: #2a2d3b; border-radius: 4px; overflow: hidden; margin: 12px 0; display: none; }
+    .progress-fill { height: 100%; background: #6c63ff; border-radius: 4px; transition: width 0.3s; width: 0%; }
+    .upload-status { font-size: 13px; color: #999; margin-bottom: 16px; }
+
+    /* Template grid */
+    .template-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
+    .template-card { background: #1a1d27; border-radius: 10px; overflow: hidden; border: 1px solid #2a2d3b; transition: transform 0.2s; }
+    .template-card:hover { transform: translateY(-2px); }
+    .template-card .img-wrap { position: relative; width: 100%; aspect-ratio: 3/4; background: linear-gradient(135deg, #2a2d3b 0%, #1a1d27 100%); overflow: hidden; }
+    .template-card .img-wrap img { width: 100%; height: 100%; object-fit: cover; position: relative; z-index: 1; }
+    .template-card .img-wrap img[alt]::after { content: ''; display: block; position: absolute; inset: 0; background: transparent; }
+    .template-card .img-wrap img:not([src]), .template-card .img-wrap img[src=''] { opacity: 0; }
+    .template-card .img-wrap .placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+    .template-card .img-wrap .placeholder span { font-size: 22px; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; color: rgba(108,99,255,0.18); font-family: 'Georgia', serif; transform: rotate(-25deg); user-select: none; }
+    .template-card .info { padding: 10px; }
+    .template-card .info .name { font-size: 13px; font-weight: 500; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .template-card .info .meta { font-size: 11px; color: #666; }
+    .template-card .actions { padding: 6px 10px 10px; display: flex; gap: 6px; }
+    .template-card .actions button { flex: 1; padding: 6px; font-size: 11px; border-radius: 6px; border: none; cursor: pointer; }
+
+    /* Pagination */
+    .pagination { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 24px; padding: 16px 0; }
+    .pagination button { padding: 8px 16px; background: #2a2d3b; border: 1px solid #3a3d4b; border-radius: 8px; color: #e0e0e0; cursor: pointer; font-size: 13px; }
+    .pagination button:hover:not(:disabled) { background: #3a3d4b; }
+    .pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .pagination .page-info { font-size: 13px; color: #999; }
+
+    /* Stats */
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: #1a1d27; border-radius: 10px; padding: 20px; border: 1px solid #2a2d3b; }
+    .stat-card .label { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-card .value { font-size: 28px; font-weight: 700; color: #fff; margin-top: 4px; }
+
+    /* Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 900; display: flex; align-items: center; justify-content: center; }
+    .modal { background: #1a1d27; border-radius: 12px; padding: 28px; width: 440px; max-width: 90vw; box-shadow: 0 12px 48px rgba(0,0,0,0.5); }
+    .modal h3 { font-size: 18px; color: #fff; margin-bottom: 20px; }
+    .modal .form-group { margin-bottom: 14px; }
+    .modal .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 24px; right: 24px; background: #2a2d3b; color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 14px; z-index: 1000; opacity: 0; transform: translateY(20px); transition: all 0.3s; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.error { background: #e53e3e; }
+    .toast.success { background: #38a169; }
+
+    /* Empty state */
+    .empty { text-align: center; padding: 60px 20px; color: #666; }
+    .empty .icon { font-size: 48px; margin-bottom: 12px; }
+
+    /* Inline upload in category view */
+    .cat-upload-section { background: #1a1d27; border: 1px solid #2a2d3b; border-radius: 10px; padding: 16px; margin-bottom: 20px; }
+    .cat-upload-section .upload-row { display: flex; align-items: center; gap: 12px; }
+    .cat-upload-section .file-info { font-size: 13px; color: #999; }
+  </style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="loginScreen" class="login-container">
+  <div class="login-box">
+    <h1>Outfit Admin</h1>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="admin@example.com">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="Password">
+    </div>
+    <div id="loginError" class="error-msg"></div>
+    <button class="btn btn-primary" onclick="doLogin()" style="margin-top: 12px; width: 100%;">Sign In</button>
+  </div>
+</div>
+
+<!-- Main App -->
+<div id="app" class="app">
+  <div class="header">
+    <h1>Outfit Admin</h1>
+    <div class="user-info">
+      <span class="user-email" id="userEmail"></span>
+      <button class="btn btn-secondary" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+  <div class="main">
+    <div class="sidebar">
+      <div class="nav-item active" onclick="showDashboard()" id="navDashboard">Dashboard</div>
+      <div class="nav-item" onclick="showBulkUpload()" id="navUpload">Bulk Upload</div>
+      <hr style="border-color: #2a2d3b; margin: 12px 0;">
+      <h3>Categories <button class="btn btn-sm btn-primary" onclick="openCategoryModal()" style="padding:3px 8px; font-size:11px;">+ New</button></h3>
+      <div id="categoryNav"></div>
+    </div>
+    <div class="content" id="content">
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="modalRoot"></div>
+
+<script>
+  const API = '/api/v1';
+  let TOKEN = localStorage.getItem('admin_token') || '';
+  let REFRESH_TOKEN = localStorage.getItem('admin_refresh') || '';
+  let USER_EMAIL = localStorage.getItem('admin_email') || '';
+  let TOKEN_EXP = 0; // unix seconds
+
+  // ─── Token management ───────────────────────────────────────────────────────
+  function parseTokenExp(token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp || 0;
+    } catch { return 0; }
+  }
+
+  if (TOKEN) {
+    TOKEN_EXP = parseTokenExp(TOKEN);
+    showApp();
+  }
+
+  async function refreshAccessToken() {
+    if (!REFRESH_TOKEN) return false;
+    try {
+      const res = await fetch(API + '/auth/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken: REFRESH_TOKEN }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.data?.accessToken) return false;
+      TOKEN = data.data.accessToken;
+      TOKEN_EXP = parseTokenExp(TOKEN);
+      localStorage.setItem('admin_token', TOKEN);
+      if (data.data.refreshToken) {
+        REFRESH_TOKEN = data.data.refreshToken;
+        localStorage.setItem('admin_refresh', REFRESH_TOKEN);
+      }
+      return true;
+    } catch { return false; }
+  }
+
+  async function ensureToken() {
+    const now = Math.floor(Date.now() / 1000);
+    // Refresh if token expires within 60 seconds
+    if (TOKEN_EXP > 0 && now >= TOKEN_EXP - 60) {
+      const ok = await refreshAccessToken();
+      if (!ok) { doLogout(); throw new Error('Session expired. Please login again.'); }
+    }
+  }
+
+  // ─── API helper ─────────────────────────────────────────────────────────────
+  async function api(path, opts = {}) {
+    await ensureToken();
+    const res = await fetch(API + path, {
+      ...opts,
+      headers: {
+        'Authorization': `Bearer ${TOKEN}`,
+        ...(opts.headers || {}),
+        ...(opts.body && !(opts.body instanceof FormData) ? { 'Content-Type': 'application/json' } : {}),
+      },
+    });
+    if (res.status === 401 || res.status === 403) {
+      // Try refresh once
+      const refreshed = await refreshAccessToken();
+      if (refreshed) {
+        const retry = await fetch(API + path, {
+          ...opts,
+          headers: {
+            'Authorization': `Bearer ${TOKEN}`,
+            ...(opts.headers || {}),
+            ...(opts.body && !(opts.body instanceof FormData) ? { 'Content-Type': 'application/json' } : {}),
+          },
+        });
+        if (retry.ok) {
+          const data = await retry.json();
+          return data;
+        }
+      }
+      doLogout();
+      throw new Error('Session expired');
+    }
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || 'Request failed');
+    return data;
+  }
+
+  // Upload with auto-refresh (for long uploads)
+  async function apiUpload(path, formData) {
+    await ensureToken();
+    const res = await fetch(API + path, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${TOKEN}` },
+      body: formData,
+    });
+    if (res.status === 401 || res.status === 403) {
+      const refreshed = await refreshAccessToken();
+      if (refreshed) {
+        const retry = await fetch(API + path, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${TOKEN}` },
+          body: formData,
+        });
+        if (retry.ok) return await retry.json();
+      }
+      doLogout();
+      throw new Error('Session expired');
+    }
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || 'Upload failed');
+    return data;
+  }
+
+  // ─── Auth image loading (blob URL approach) ─────────────────────────────────
+  async function loadAuthImage(imgEl, url) {
+    try {
+      await ensureToken();
+      // preview_image_url already has /api/v1 prefix - don't double it
+      const fetchUrl = url.startsWith('/api/') ? url : (API + url);
+      const res = await fetch(fetchUrl, {
+        headers: { 'Authorization': `Bearer ${TOKEN}` },
+      });
+      if (!res.ok) throw new Error('Failed to load image');
+      const blob = await res.blob();
+      imgEl.src = URL.createObjectURL(blob);
+    } catch {
+      imgEl.style.opacity = '0';
+    }
+  }
+
+  // ─── Login / Logout ─────────────────────────────────────────────────────────
+  async function doLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    document.getElementById('loginError').textContent = '';
+
+    try {
+      const res = await fetch(API + '/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || 'Login failed');
+
+      TOKEN = data.data.accessToken;
+      TOKEN_EXP = parseTokenExp(TOKEN);
+      USER_EMAIL = email;
+      localStorage.setItem('admin_token', TOKEN);
+      localStorage.setItem('admin_email', email);
+      if (data.data.refreshToken) {
+        REFRESH_TOKEN = data.data.refreshToken;
+        localStorage.setItem('admin_refresh', REFRESH_TOKEN);
+      }
+
+      // Check admin access
+      try {
+        await api('/admin/category-tree');
+      } catch {
+        localStorage.clear();
+        TOKEN = '';
+        REFRESH_TOKEN = '';
+        throw new Error('This account does not have admin access.');
+      }
+
+      showApp();
+    } catch (err) {
+      document.getElementById('loginError').textContent = err.message;
+    }
+  }
+
+  function doLogout() {
+    TOKEN = '';
+    REFRESH_TOKEN = '';
+    TOKEN_EXP = 0;
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_email');
+    localStorage.removeItem('admin_refresh');
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+  }
+
+  function showApp() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('userEmail').textContent = USER_EMAIL;
+    showDashboard();
+    loadCategories();
+  }
+
+  function toast(msg, type = 'success') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'toast show ' + type;
+    setTimeout(() => el.className = 'toast', 3000);
+  }
+
+  // ─── Modal helpers ──────────────────────────────────────────────────────────
+  function openModal(html) {
+    document.getElementById('modalRoot').innerHTML = `<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal">${html}</div></div>`;
+  }
+  function closeModal() {
+    document.getElementById('modalRoot').innerHTML = '';
+  }
+
+  // ─── Dashboard ──────────────────────────────────────────────────────────────
+  async function showDashboard() {
+    setActiveNav('navDashboard');
+    const content = document.getElementById('content');
+    content.innerHTML = '<h2>Dashboard</h2><div class="stats" id="stats">Loading...</div>';
+
+    try {
+      const [cats, tmpls, gens] = await Promise.all([
+        api('/admin/category-tree'),
+        api('/admin/templates?limit=1'),
+        api('/admin/generations?limit=1'),
+      ]);
+
+      const parentCount = cats.data.categories.length;
+      const subCount = cats.data.categories.reduce((s, c) => s + (c.children?.length || 0), 0);
+      const templateTotal = tmpls.meta?.total ?? tmpls.data.templates.length;
+
+      document.getElementById('stats').innerHTML = `
+        <div class="stat-card"><div class="label">Parent Categories</div><div class="value">${parentCount}</div></div>
+        <div class="stat-card"><div class="label">Subcategories</div><div class="value">${subCount}</div></div>
+        <div class="stat-card"><div class="label">Templates</div><div class="value">${templateTotal}</div></div>
+      `;
+    } catch (err) {
+      content.innerHTML = '<p class="error-msg">' + esc(err.message) + '</p>';
+    }
+  }
+
+  // ─── Categories nav ─────────────────────────────────────────────────────────
+  let categoryTreeCache = [];
+
+  async function loadCategories() {
+    try {
+      const res = await api('/admin/category-tree');
+      categoryTreeCache = res.data.categories;
+      const nav = document.getElementById('categoryNav');
+      nav.innerHTML = '';
+
+      for (const parent of categoryTreeCache) {
+        const group = document.createElement('div');
+        group.className = 'category-group';
+        group.innerHTML = `
+          <div class="category-group-header">
+            <div class="category-group-name" onclick="toggleGroup(this.parentElement.nextElementSibling, this.querySelector('.arrow')); showParentCategory('${parent.id}', '${esc(parent.name)}')">
+              <span class="arrow">&#9654;</span> ${esc(parent.name)}
+              <span class="badge">${parent.template_count || 0}</span>
+            </div>
+            <div class="cat-actions">
+              <button title="Add subcategory" onclick="openSubcategoryModal('${parent.id}', '${esc(parent.name)}')">+</button>
+              <button title="Edit" onclick="openEditCategoryModal('${parent.id}')">&#9998;</button>
+              <button title="Delete" onclick="deleteCategory('${parent.id}', '${esc(parent.name)}')">&#10005;</button>
+            </div>
+          </div>
+          <div class="category-children" id="cat-children-${parent.id}">
+            ${(parent.children || []).map(c => `
+              <div class="sub-item" onclick="showCategory('${c.id}', '${esc(c.name)}')" id="cat-${c.id}">
+                <span>${esc(c.name)}</span>
+                <span style="display:flex; align-items:center; gap:4px;">
+                  <span class="badge">${c.template_count || 0}</span>
+                  <span class="cat-actions" style="display:inline-flex;" onclick="event.stopPropagation()">
+                    <button title="Edit" onclick="openEditCategoryModal('${c.id}')">&#9998;</button>
+                    <button title="Delete" onclick="deleteCategory('${c.id}', '${esc(c.name)}')">&#10005;</button>
+                  </span>
+                </span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        nav.appendChild(group);
+      }
+    } catch (err) {
+      console.error('Failed to load categories', err);
+    }
+  }
+
+  function toggleGroup(childrenEl, arrowEl) {
+    childrenEl.classList.toggle('open');
+    arrowEl.classList.toggle('open');
+  }
+
+  // ─── Category CRUD ──────────────────────────────────────────────────────────
+  function openCategoryModal(parentId) {
+    const isSubcategory = !!parentId;
+    const title = isSubcategory ? 'Create Subcategory' : 'Create Parent Category';
+    openModal(`
+      <h3>${title}</h3>
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="catName" placeholder="e.g. Men, Blazers" oninput="autoSlug()">
+      </div>
+      <div class="form-group">
+        <label>Slug</label>
+        <input type="text" id="catSlug" placeholder="auto-generated">
+      </div>
+      <div class="form-group">
+        <label>Description (optional)</label>
+        <input type="text" id="catDesc" placeholder="Brief description">
+      </div>
+      <div class="form-group">
+        <label>Display Order</label>
+        <input type="number" id="catOrder" value="0" min="0">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="createCategory('${parentId || ''}')">Create</button>
+      </div>
+    `);
+  }
+
+  function openSubcategoryModal(parentId, parentName) {
+    openCategoryModal(parentId);
+  }
+
+  function autoSlug() {
+    const name = document.getElementById('catName').value;
+    document.getElementById('catSlug').value = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  }
+
+  async function createCategory(parentId) {
+    const name = document.getElementById('catName').value.trim();
+    let slug = document.getElementById('catSlug').value.trim();
+    const description = document.getElementById('catDesc').value.trim() || null;
+    const displayOrder = parseInt(document.getElementById('catOrder').value) || 0;
+
+    if (!name || !slug) { toast('Name and slug are required', 'error'); return; }
+
+    // For subcategories, prefix slug with parent slug
+    if (parentId) {
+      const parent = categoryTreeCache.find(c => c.id === parentId);
+      if (parent) slug = parent.slug + '--' + slug;
+    }
+
+    try {
+      await api('/admin/categories', {
+        method: 'POST',
+        body: JSON.stringify({ name, slug, description, displayOrder, parentId: parentId || null }),
+      });
+      closeModal();
+      toast('Category created');
+      loadCategories();
+    } catch (err) { toast(err.message, 'error'); }
+  }
+
+  function openEditCategoryModal(id) {
+    // Find category in cache
+    let cat = null;
+    for (const p of categoryTreeCache) {
+      if (p.id === id) { cat = p; break; }
+      const child = (p.children || []).find(c => c.id === id);
+      if (child) { cat = child; break; }
+    }
+    if (!cat) { toast('Category not found', 'error'); return; }
+
+    openModal(`
+      <h3>Edit Category</h3>
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="editCatName" value="${esc(cat.name)}">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <input type="text" id="editCatDesc" value="${esc(cat.description || '')}">
+      </div>
+      <div class="form-group">
+        <label>Display Order</label>
+        <input type="number" id="editCatOrder" value="${cat.display_order || 0}" min="0">
+      </div>
+      <div class="form-group">
+        <label>Category Icon</label>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span id="editCatIconPreview" style="width:40px;height:40px;border-radius:8px;background:#2a2d3b;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+            ${cat.image_url ? '<img id="editCatIconImg" style="width:100%;height:100%;object-fit:cover;">' : '—'}
+          </span>
+          <input type="file" id="editCatIcon" accept="image/jpeg,image/png,image/webp" style="flex:1">
+          <button class="btn btn-secondary" style="font-size:11px" onclick="uploadCatIcon('${id}')">Upload</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Active</label>
+        <select id="editCatActive">
+          <option value="true" ${cat.is_active ? 'selected' : ''}>Yes</option>
+          <option value="false" ${!cat.is_active ? 'selected' : ''}>No</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="updateCategory('${id}')">Save</button>
+      </div>
+    `);
+    // Load existing icon if present
+    if (cat.image_url) {
+      const iconImg = document.getElementById('editCatIconImg');
+      if (iconImg) loadAuthImage(iconImg, cat.image_url);
+    }
+  }
+
+  async function updateCategory(id) {
+    const name = document.getElementById('editCatName').value.trim();
+    const description = document.getElementById('editCatDesc').value.trim() || null;
+    const displayOrder = parseInt(document.getElementById('editCatOrder').value) || 0;
+    const isActive = document.getElementById('editCatActive').value === 'true';
+
+    if (!name) { toast('Name is required', 'error'); return; }
+
+    try {
+      await api('/admin/categories/' + id, {
+        method: 'PATCH',
+        body: JSON.stringify({ name, description, displayOrder, isActive }),
+      });
+      closeModal();
+      toast('Category updated');
+      loadCategories();
+    } catch (err) { toast(err.message, 'error'); }
+  }
+
+  async function uploadCatIcon(catId) {
+    const input = document.getElementById('editCatIcon');
+    if (!input.files.length) { toast('Select an image first', 'error'); return; }
+    const formData = new FormData();
+    formData.append('images', input.files[0]);
+    try {
+      const res = await apiUpload('/admin/categories/' + catId + '/icon', formData);
+      toast('Icon uploaded');
+      // Update preview
+      const preview = document.getElementById('editCatIconPreview');
+      if (preview) {
+        preview.innerHTML = '<img style="width:100%;height:100%;object-fit:cover;">';
+        loadAuthImage(preview.querySelector('img'), res.data.imageUrl);
+      }
+      await loadCategories();
+    } catch (err) { toast(err.message, 'error'); }
+  }
+
+    async function deleteCategory(id, name) {
+    if (!confirm('Deactivate category "' + name + '" and all its subcategories?')) return;
+    try {
+      await api('/admin/categories/' + id, { method: 'DELETE' });
+      toast('Category deactivated');
+      loadCategories();
+    } catch (err) { toast(err.message, 'error'); }
+  }
+
+  // ─── Category templates view (with pagination + upload) ─────────────────────
+  let currentCatId = null;
+  let currentCatName = '';
+  let currentPage = 1;
+  const PAGE_SIZE = 20;
+
+  function showParentCategory(id, name) {
+    currentCatId = id;
+    currentCatName = name;
+    const content = document.getElementById('content');
+    content.innerHTML = `
+      <div class="content-header">
+        <h2>${esc(name)}</h2>
+        <div class="content-actions">
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('parentFolderInput').click()">Upload Folders \u2192 Subcategories</button>
+          <input type="file" id="parentFolderInput" webkitdirectory directory multiple style="display:none" onchange="handleCatFolderUpload(this)">
+        </div>
+      </div>
+      <div id="catUploadProgress" style="display:none">
+        <div class="progress-bar" style="display:block"><div class="progress-fill" id="catProgressFill"></div></div>
+        <div class="upload-status" id="catUploadStatus"></div>
+      </div>
+      <div style="padding:2rem;text-align:center;color:#888">
+        <p>Select a subcategory to view templates, or <strong>Upload Folders</strong> to create subcategories from folder names.</p>
+        <p style="font-size:12px;margin-top:8px">Each subfolder becomes a subcategory; its images become templates.</p>
+      </div>
+    `;
+  }
+
+  async function showCategory(id, name, page) {
+    currentCatId = id;
+    currentCatName = name;
+    currentPage = page || 1;
+
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.sub-item').forEach(n => n.classList.remove('active'));
+    const el = document.getElementById('cat-' + id);
+    if (el) el.classList.add('active');
+
+    const content = document.getElementById('content');
+    content.innerHTML = `
+      <div class="content-header">
+        <h2>${esc(name)}</h2>
+        <div class="content-actions">
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('catFileInput').click()">Upload Files</button>
+          <input type="file" id="catFileInput" multiple accept="image/jpeg,image/png,image/webp" style="display:none" onchange="handleCatUpload(this)">
+          <button class="btn btn-secondary btn-sm" onclick="document.getElementById('catFolderInput').click()">Upload Folder</button>
+          <input type="file" id="catFolderInput" webkitdirectory directory multiple style="display:none" onchange="handleCatFolderUpload(this)">
+        </div>
+      </div>
+      <div id="catUploadProgress" style="display:none">
+        <div class="progress-bar" style="display:block"><div class="progress-fill" id="catProgressFill"></div></div>
+        <div class="upload-status" id="catUploadStatus"></div>
+      </div>
+      <div class="template-grid" id="templateGrid">Loading...</div>
+      <div class="pagination" id="pagination"></div>
+    `;
+
+    try {
+      const res = await api('/admin/categories/' + id + '/templates?limit=' + PAGE_SIZE + '&page=' + currentPage);
+      const templates = res.data.templates;
+      const total = res.meta?.total ?? templates.length;
+      const totalPages = Math.ceil(total / PAGE_SIZE);
+
+      const grid = document.getElementById('templateGrid');
+      if (!templates.length) {
+        grid.innerHTML = '<div class="empty"><div class="icon">&#128193;</div><p>No templates in this category yet.<br>Click "Upload Templates" to add images.</p></div>';
+      } else {
+        grid.innerHTML = templates.map(t => `
+          <div class="template-card">
+            <div class="img-wrap">
+              <div class="placeholder"><span>OUTFIT</span></div>
+              <img id="img-${t.id}" alt="${esc(t.name)}" loading="lazy"
+                   data-auth-src="${t.preview_image_url || ''}">
+            </div>
+            <div class="info">
+              <div class="name" title="${esc(t.name)}">${esc(t.name)}</div>
+              <div class="meta">${t.garment_type || 'entire_outfit'}</div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-secondary" onclick="toggleTemplate('${t.id}', ${!t.is_active})">${t.is_active ? 'Disable' : 'Enable'}</button>
+              <button class="btn btn-danger" style="font-size:11px" onclick="deleteTemplate('${t.id}')">Delete</button>
+            </div>
+          </div>
+        `).join('');
+
+        // Load images via blob URLs
+        templates.forEach(t => {
+          if (t.preview_image_url) {
+            const img = document.getElementById('img-' + t.id);
+            if (img) loadAuthImage(img, t.preview_image_url);
+          }
+        });
+      }
+
+      // Pagination controls
+      if (totalPages > 1) {
+        document.getElementById('pagination').innerHTML = `
+          <button ${currentPage <= 1 ? 'disabled' : ''} onclick="showCategory('${id}', '${esc(name)}', ${currentPage - 1})">Previous</button>
+          <span class="page-info">Page ${currentPage} of ${totalPages} (${total} templates)</span>
+          <button ${currentPage >= totalPages ? 'disabled' : ''} onclick="showCategory('${id}', '${esc(name)}', ${currentPage + 1})">Next</button>
+        `;
+      }
+    } catch (err) {
+      document.getElementById('templateGrid').innerHTML = '<p class="error-msg">' + esc(err.message) + '</p>';
+    }
+  }
+
+  // ─── Upload to specific category ────────────────────────────────────────────
+  async function handleCatUpload(input) {
+    const files = Array.from(input.files);
+    if (!files.length) return;
+    const imageFiles = files.filter(f => ['image/jpeg', 'image/png', 'image/webp'].includes(f.type));
+    if (!imageFiles.length) { toast('No valid image files selected', 'error'); return; }
+
+    const progressDiv = document.getElementById('catUploadProgress');
+    const fill = document.getElementById('catProgressFill');
+    const status = document.getElementById('catUploadStatus');
+    progressDiv.style.display = 'block';
+    fill.style.width = '0%';
+    status.textContent = 'Uploading ' + imageFiles.length + ' images...';
+
+    const batchSize = 20;
+    let totalCreated = 0, totalSkipped = 0;
+    const allErrors = [];
+
+    for (let i = 0; i < imageFiles.length; i += batchSize) {
+      // Refresh token before each batch
+      await ensureToken();
+
+      const batch = imageFiles.slice(i, i + batchSize);
+      const formData = new FormData();
+      batch.forEach(f => formData.append('images', f, f.name));
+
+      try {
+        const data = await apiUpload('/admin/categories/' + currentCatId + '/upload-templates', formData);
+        totalCreated += data.data.created || 0;
+        totalSkipped += data.data.skipped || 0;
+        if (data.data.errors?.length) allErrors.push(...data.data.errors);
+      } catch (err) {
+        allErrors.push('Batch ' + (Math.floor(i / batchSize) + 1) + ': ' + err.message);
+      }
+
+      const pct = Math.round(((i + batch.length) / imageFiles.length) * 100);
+      fill.style.width = pct + '%';
+      status.textContent = 'Uploaded ' + Math.min(i + batch.length, imageFiles.length) + ' / ' + imageFiles.length;
+    }
+
+    fill.style.width = '100%';
+    status.textContent = 'Done! Created: ' + totalCreated + ', Skipped: ' + totalSkipped;
+    if (allErrors.length) {
+      status.textContent += ' (' + allErrors.length + ' errors)';
+    }
+
+    toast('Upload complete: ' + totalCreated + ' templates created');
+    input.value = '';
+    loadCategories();
+    // Reload current category view
+    setTimeout(() => showCategory(currentCatId, currentCatName, 1), 500);
+  }
+
+  // ─── Upload folder to category ──────────────────────────────────────────────
+  // Each immediate subfolder → subcategory (created via normal category API),
+  // then that subfolder's images are uploaded to the subcategory's own id.
+  function slugOf(str) {
+    return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  }
+
+  function findCategoryInCache(id) {
+    for (const p of categoryTreeCache) {
+      if (p.id === id) return p;
+      const c = (p.children || []).find(x => x.id === id);
+      if (c) return c;
+    }
+    return null;
+  }
+
+  async function ensureSubcategory(parentId, parentSlug, name) {
+    const slug = parentSlug + '--' + slugOf(name);
+    // Already exists?
+    await loadCategories();
+    const parent = categoryTreeCache.find(c => c.id === parentId);
+    const existing = (parent?.children || []).find(c => c.slug === slug);
+    if (existing) return existing.id;
+    const res = await api('/admin/categories', {
+      method: 'POST',
+      body: JSON.stringify({ name, slug, parentId }),
+    });
+    return res.data.category.id;
+  }
+
+  async function handleCatFolderUpload(input) {
+    const files = Array.from(input.files);
+    if (!files.length) return;
+    const imageFiles = files.filter(f => ['image/jpeg', 'image/png', 'image/webp'].includes(f.type));
+    if (!imageFiles.length) { toast('No valid image files in folder', 'error'); return; }
+
+    const cat = findCategoryInCache(currentCatId);
+    if (!cat) { toast('Category not found in sidebar, reload page', 'error'); return; }
+    const isParentView = !cat.parent_id;
+
+    // Grouping:
+    //  "Men/Blazers/a.jpg"  → subcategory "Blazers"
+    //  "Blazers/a.jpg"      → on a parent category: subcategory "Blazers" (selected folder itself)
+    //                         on a subcategory: direct upload into it
+    const groups = new Map();
+    imageFiles.forEach(f => {
+      const parts = (f.webkitRelativePath || f.name).split('/');
+      let key = '__direct__';
+      if (parts.length >= 3) key = parts[1];
+      else if (parts.length === 2 && isParentView) key = parts[0];
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(f);
+    });
+
+    const progressDiv = document.getElementById('catUploadProgress');
+    const fill = document.getElementById('catProgressFill');
+    const status = document.getElementById('catUploadStatus');
+    progressDiv.style.display = 'block';
+    fill.style.width = '0%';
+    const parentId = currentCatId;
+    const parentSlug = cat.slug;
+
+    const totalFiles = imageFiles.length;
+    let uploaded = 0, totalCreated = 0, totalSkipped = 0;
+    const allErrors = [];
+
+    for (const [sub, groupFiles] of groups) {
+      let targetId = parentId;
+      const label = sub === '__direct__' ? cat.name : sub;
+      try {
+        if (sub !== '__direct__') {
+          status.textContent = 'Creating subcategory "' + sub + '"...';
+          targetId = await ensureSubcategory(parentId, parentSlug, sub);
+        }
+      } catch (err) {
+        allErrors.push('Subcategory ' + sub + ': ' + err.message);
+        status.textContent = 'Failed to create subcategory "' + sub + '": ' + err.message;
+        uploaded += groupFiles.length;
+        continue;
+      }
+
+      const batchSize = 20;
+      for (let i = 0; i < groupFiles.length; i += batchSize) {
+        const batch = groupFiles.slice(i, i + batchSize);
+        status.textContent = label + ': uploading ' + Math.min(i + batch.length, groupFiles.length) + ' / ' + groupFiles.length;
+        const formData = new FormData();
+        batch.forEach(f => formData.append('images', f, f.name));
+        try {
+          const data = await apiUpload('/admin/categories/' + targetId + '/upload-templates', formData);
+          totalCreated += data.data.created || 0;
+          totalSkipped += data.data.skipped || 0;
+          if (data.data.errors?.length) allErrors.push(...data.data.errors);
+        } catch (err) {
+          allErrors.push(label + ': ' + err.message);
+        }
+        uploaded += batch.length;
+        fill.style.width = Math.round((uploaded / totalFiles) * 100) + '%';
+      }
+    }
+
+    fill.style.width = '100%';
+    status.textContent = 'Done. Created: ' + totalCreated + ', Skipped: ' + totalSkipped +
+      (allErrors.length ? ' — ' + allErrors.length + ' errors: ' + allErrors.slice(0, 3).join(' | ') : '');
+    toast(allErrors.length ? 'Finished with errors (see status line)' : 'Created ' + totalCreated + ' templates', allErrors.length ? 'error' : 'success');
+    input.value = '';
+    await loadCategories();
+    const childrenEl = document.getElementById('cat-children-' + parentId);
+    if (childrenEl) childrenEl.classList.add('open');
+  }
+
+  // ─── Template actions ───────────────────────────────────────────────────────
+  async function toggleTemplate(id, active) {
+    try {
+      await api('/admin/templates/' + id, { method: 'PATCH', body: JSON.stringify({ isActive: active }) });
+      toast(active ? 'Template enabled' : 'Template disabled');
+      if (currentCatId) showCategory(currentCatId, currentCatName, currentPage);
+    } catch (err) { toast(err.message, 'error'); }
+  }
+
+  async function deleteTemplate(id) {
+    if (!confirm('Deactivate this template?')) return;
+    try {
+      await api('/admin/templates/' + id, { method: 'DELETE' });
+      toast('Template deactivated');
+      loadCategories();
+      if (currentCatId) showCategory(currentCatId, currentCatName, currentPage);
+    } catch (err) { toast(err.message, 'error'); }
+  }
+
+  // ─── Bulk Upload ────────────────────────────────────────────────────────────
+  function showBulkUpload() {
+    setActiveNav('navUpload');
+    const content = document.getElementById('content');
+    content.innerHTML = `
+      <h2>Bulk Upload Templates</h2>
+      <p style="color:#999; margin-bottom:16px; font-size:14px;">
+        Select a folder with this structure: <code style="background:#2a2d3b; padding:2px 8px; border-radius:4px;">Group / Subcategory / image.jpg</code><br>
+        Example: <code style="background:#2a2d3b; padding:2px 8px; border-radius:4px;">Men / Blazers / blazer1.jpg</code>
+      </p>
+      <div class="upload-area" id="uploadArea" onclick="document.getElementById('folderInput').click()">
+        <p style="font-size:36px; margin-bottom:8px;">&#128193;</p>
+        <p>Click to select a folder or drag &amp; drop images here</p>
+        <p class="hint">Supports JPEG, PNG, WebP &mdash; up to 200 images per batch</p>
+      </div>
+      <input type="file" id="folderInput" webkitdirectory directory multiple style="display:none" onchange="handleFolderSelect(this)">
+      <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="upload-status" id="uploadStatus"></div>
+      <div id="uploadResult"></div>
+    `;
+
+    const area = document.getElementById('uploadArea');
+    area.addEventListener('dragover', (e) => { e.preventDefault(); area.classList.add('dragover'); });
+    area.addEventListener('dragleave', () => area.classList.remove('dragover'));
+    area.addEventListener('drop', (e) => {
+      e.preventDefault();
+      area.classList.remove('dragover');
+      if (e.dataTransfer.files.length) handleFiles(Array.from(e.dataTransfer.files));
+    });
+  }
+
+  function handleFolderSelect(input) {
+    const files = Array.from(input.files);
+    if (!files.length) return;
+    const mapped = files.map(f => {
+      const file = new File([f], f.webkitRelativePath || f.name, { type: f.type });
+      return file;
+    });
+    handleFiles(mapped);
+  }
+
+  async function handleFiles(files) {
+    const imageFiles = files.filter(f => ['image/jpeg', 'image/png', 'image/webp'].includes(f.type));
+    if (!imageFiles.length) { toast('No valid image files found', 'error'); return; }
+
+    const status = document.getElementById('uploadStatus');
+    const bar = document.getElementById('progressBar');
+    const fill = document.getElementById('progressFill');
+    bar.style.display = 'block';
+    fill.style.width = '0%';
+    status.textContent = 'Uploading ' + imageFiles.length + ' images...';
+
+    const batchSize = 50;
+    let totalCreated = 0, totalSkipped = 0;
+    const allErrors = [];
+
+    for (let i = 0; i < imageFiles.length; i += batchSize) {
+      // Refresh token before each batch
+      await ensureToken();
+
+      const batch = imageFiles.slice(i, i + batchSize);
+      const formData = new FormData();
+      const paths = [];
+      batch.forEach(f => {
+        paths.push(f.name);
+        formData.append('images', f);
+      });
+      // Send paths separately since browsers strip directories from filenames
+      formData.append('paths', JSON.stringify(paths));
+
+      try {
+        const data = await apiUpload('/admin/templates/bulk-upload', formData);
+        totalCreated += data.data.created || 0;
+        totalSkipped += data.data.skipped || 0;
+        if (data.data.errors?.length) allErrors.push(...data.data.errors);
+      } catch (err) {
+        allErrors.push('Batch ' + (Math.floor(i / batchSize) + 1) + ': ' + err.message);
+      }
+
+      const pct = Math.round(((i + batch.length) / imageFiles.length) * 100);
+      fill.style.width = pct + '%';
+      status.textContent = 'Uploaded ' + Math.min(i + batch.length, imageFiles.length) + ' / ' + imageFiles.length;
+    }
+
+    fill.style.width = '100%';
+    status.textContent = 'Done! Created: ' + totalCreated + ', Skipped: ' + totalSkipped;
+
+    if (allErrors.length) {
+      document.getElementById('uploadResult').innerHTML = `
+        <details style="margin-top:12px;"><summary style="color:#ff6b6b;cursor:pointer;">${allErrors.length} errors</summary>
+        <pre style="background:#1a1d27;padding:12px;border-radius:8px;font-size:12px;max-height:200px;overflow:auto;margin-top:8px;">${esc(allErrors.join('\n'))}</pre>
+        </details>`;
+    }
+
+    toast('Upload complete: ' + totalCreated + ' templates created');
+    loadCategories();
+  }
+
+  // ─── Utils ──────────────────────────────────────────────────────────────────
+  function setActiveNav(id) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.sub-item').forEach(n => n.classList.remove('active'));
+    const el = document.getElementById(id);
+    if (el) el.classList.add('active');
+  }
+
+  function esc(str) {
+    const d = document.createElement('div');
+    d.textContent = str || '';
+    return d.innerHTML;
+  }
+
+  // Enter key on login
+  document.getElementById('loginPassword').addEventListener('keyup', (e) => { if (e.key === 'Enter') doLogin(); });
+  document.getElementById('loginEmail').addEventListener('keyup', (e) => { if (e.key === 'Enter') document.getElementById('loginPassword').focus(); });
+</script>
+</body>
+</html>
