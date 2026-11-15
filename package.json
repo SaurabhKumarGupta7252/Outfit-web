@@ -1,22 +1,30 @@
 {
-  "name": "health-api",
+  "name": "outfit-api",
   "version": "1.0.0",
   "type": "module",
-  "description": "A small Express API with service health and readiness checks.",
+  "description": "Express API for the AI Outfit Changer app.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "node migrate.js"
+    "db:migrate": "node migrate.js",
+    "make-admin": "node scripts/make-admin.js",
+    "test": "node --test tests/"
   },
   "dependencies": {
+    "cloudinary": "^2.7.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.44.7",
     "express": "^5.1.0",
-    "cloudinary": "^2.7.0",
+    "express-rate-limit": "^7.5.0",
+    "google-auth-library": "^9.15.1",
+    "helmet": "^8.1.0",
     "multer": "^2.0.2",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "pino": "^9.6.0",
+    "pino-http": "^10.4.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "drizzle-kit": "^0.31.5"

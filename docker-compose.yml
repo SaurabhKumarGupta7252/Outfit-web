@@ -1,0 +1,16 @@
+# Local PostgreSQL for development and tests. Start with: docker compose up -d
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: outfit-postgres
+    environment:
+      POSTGRES_USER: outfit
+      POSTGRES_PASSWORD: outfit
+      POSTGRES_DB: outfit_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - outfit_pgdata:/var/lib/postgresql/data
+      - ./scripts/create-test-db.sql:/docker-entrypoint-initdb.d/10-create-test-db.sql:ro
+volumes:
+  outfit_pgdata:
