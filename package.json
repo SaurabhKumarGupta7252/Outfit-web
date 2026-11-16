@@ -9,6 +9,8 @@
     "dev": "node --watch server.js",
     "db:migrate": "node migrate.js",
     "make-admin": "node scripts/make-admin.js",
+    "create-user": "node scripts/create-user.js",
+    "grant-credits": "node scripts/grant-credits.js",
     "test": "node --test tests/"
   },
   "dependencies": {
