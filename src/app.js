@@ -61,6 +61,10 @@ export function createApp() {
   // Serve admin web panel static files
   app.use('/admin', express.static(path.join(__dirname, '..', 'public', 'admin')));
 
+  // Public privacy policy page (used for the Google Play listing).
+  app.use('/privacy', express.static(path.join(__dirname, '..', 'public', 'privacy')));
+  app.get('/privacy-policy', (_req, res) => res.redirect(301, '/privacy/'));
+
   // Increase JSON limit for bulk operations
   app.use(express.json({ limit: '100kb' }));
 
