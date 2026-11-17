@@ -41,9 +41,7 @@ export function createApp() {
   app.get('/health', (_req, res) => {
     res.status(200).json({
       status: 'ok',
-      service: 'outfit-api',
-      timestamp: new Date().toISOString(),
-      uptimeSeconds: Math.floor((Date.now() - startedAt) / 1000),
+      message: 'Server is healthy',
     });
   });
 
